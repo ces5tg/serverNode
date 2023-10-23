@@ -1,11 +1,17 @@
+FROM mcr.microsoft.com/mssql/server:2022-latest 
 
-FROM mcr.microsoft.com/mssql/server:2017-latest
 
-ENV ACCEPT_EULA=Y \
-    MSSQL_SA_PASSWORD=123
+# Establece las variables de entorno
 
-WORKDIR /init
-COPY init-db.* ./
+ENV SA_PASSWORD=MyP@ssw0rd2023
+ENV ACCEPT_EULA=Y
 
-RUN chmod +x ./init-db.sh
-RUN /opt/mssql/bin/sqlservr & ./init-db.sh
+COPY script.sql /usr/src/app/
+
+# Exponer el puerto 1433
+EXPOSE 1433
+
+RUN /opt/mssql/bin/sqlservr --accept-eula & \
+    (while :; do if /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P $SA_PASSWORD -Q "SELECT 1"; then break; fi; sleep 30; done) && \
+    /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P $SA_PASSWORD -i /usr/src/app/script.sql && \
+    pkill sqlservr

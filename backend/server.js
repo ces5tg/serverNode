@@ -10,14 +10,15 @@ const a=express()
 a.use( cors() );
 var config={
     user: 'sa',
-    password: '1234',
+    password: 'MyP@ssw0rd2023',
     server: 'localhost',
-    database: 'db2',
+    database: 'examendb',
     options: {
         trustServerCertificate: true,
-    }
+    },
+    port: 1433
 };
-app.get( '/', async ( req, res ) => {
+a.get( '/', async ( req, res ) => {
     try {
         await sql.connect( config );
         const result=await sql.query( 'SELECT * FROM datos' );
